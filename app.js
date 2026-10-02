@@ -762,11 +762,6 @@ function renderCheckout() {
   const shipping = subtotal >= 50 ? 0 : 4.99;
   const total = subtotal + shipping;
 
-  const steps = ['Shipping', 'Payment', 'Confirm'];
-  const stepsHTML = steps.map((s,i) => `
-    <div class="checkout-step ${state.checkoutStep === i+1 ? 'active' : ''} ${state.checkoutStep > i+1 ? 'done' : ''}">${s}</div>
-  `).join('');
-
   const orderItems = state.cart.map(c => {
     const p = state.products.find(pr => pr.id === c.id);
     return p ? `<div class="checkout-order-item"><span>${p.name} x${c.qty}</span><span>$${(p.price*c.qty).toFixed(2)}</span></div>` : '';
@@ -775,43 +770,6 @@ function renderCheckout() {
   let stepContent = '';
   if(state.checkoutStep === 1) {
     stepContent = `
-      <form class="checkout-form" onsubmit="event.preventDefault();nextCheckoutStep()">
-        <div class="form-row">
-          <div class="form-field"><label>First Name *</label><input id="co-fname" required placeholder="Alex" /></div>
-          <div class="form-field"><label>Last Name *</label><input id="co-lname" required placeholder="Smith" /></div>
-        </div>
-        <div class="form-field"><label>Email *</label><input id="co-email" type="email" required placeholder="alex@email.com" /></div>
-        <div class="form-field"><label>Address *</label><input id="co-address" required placeholder="123 Main Street" /></div>
-        <div class="form-row">
-          <div class="form-field"><label>City *</label><input id="co-city" required placeholder="New York" /></div>
-          <div class="form-field"><label>ZIP Code *</label><input id="co-zip" required placeholder="10001" /></div>
-        </div>
-        <div class="form-field">
-          <label>Country *</label>
-          <select id="co-country" required>
-            <option>United States</option><option>United Kingdom</option><option>Canada</option><option>Australia</option><option>Germany</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary" style="margin-top:8px">Continue to Payment →</button>
-      </form>
-    `;
-  } else if(state.checkoutStep === 2) {
-    stepContent = `
-      <form class="checkout-form" onsubmit="event.preventDefault();nextCheckoutStep()">
-        <div class="form-field"><label>Cardholder Name *</label><input required placeholder="Alex Smith" /></div>
-        <div class="form-field"><label>Card Number *</label><input required placeholder="4242 4242 4242 4242" maxlength="19" oninput="this.value=this.value.replace(/[^0-9 ]/g,'').replace(/(.{4})/g,'$1 ').trim()" /></div>
-        <div class="form-row">
-          <div class="form-field"><label>Expiry *</label><input required placeholder="MM/YY" maxlength="5" /></div>
-          <div class="form-field"><label>CVV *</label><input required placeholder="123" maxlength="4" type="password" /></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button type="button" class="btn btn-ghost" onclick="state.checkoutStep=1;renderCheckout()">← Back</button>
-          <button type="submit" class="btn btn-primary" style="flex:1">Review Order →</button>
-        </div>
-      </form>
-    `;
-  } else if(state.checkoutStep === 3) {
-    stepContent = `
       <div class="checkout-order-summary">
         <h4>Order Summary</h4>
         ${orderItems}
@@ -819,11 +777,11 @@ function renderCheckout() {
         <div class="checkout-total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost" onclick="state.checkoutStep=2;renderCheckout()">← Back</button>
-        <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">Place Order ✓</button>
+        <button class="btn btn-ghost" onclick="closeCheckout()">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">1-Click Buy ✓</button>
       </div>
     `;
-  } else if(state.checkoutStep === 4) {
+  } else if(state.checkoutStep === 2) {
     stepContent = `
       <div class="success-screen">
         <div class="success-icon">🎉</div>
@@ -836,16 +794,10 @@ function renderCheckout() {
   }
 
   document.getElementById('checkoutContent').innerHTML = `
-    <h2 class="checkout-title">Checkout</h2>
-    <p class="checkout-sub">${state.checkoutStep < 4 ? 'Step ' + state.checkoutStep + ' of 3' : 'All done!'}</p>
-    ${state.checkoutStep < 4 ? `<div class="checkout-steps">${stepsHTML}</div>` : ''}
+    <h2 class="checkout-title">${state.checkoutStep === 1 ? 'Express Checkout' : 'Success'}</h2>
+    <p class="checkout-sub">${state.checkoutStep === 1 ? 'Review your order and click buy.' : 'All done!'}</p>
     ${stepContent}
   `;
-}
-
-function nextCheckoutStep() {
-  if(state.checkoutStep < 4) state.checkoutStep++;
-  renderCheckout();
 }
 
 function placeOrder() {
@@ -866,7 +818,7 @@ function placeOrder() {
   state.cart = [];
   saveState();
   updateCartBadge();
-  state.checkoutStep = 4;
+  state.checkoutStep = 2;
   renderCheckout();
 }
 
