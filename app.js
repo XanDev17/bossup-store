@@ -708,6 +708,9 @@ function openProductModal(productId) {
         <button class="btn btn-primary" onclick="addToCartFromModal()" ${p.stock === 0 ? 'disabled' : ''}>
           Add to Cart
         </button>
+        <button class="btn btn-outline" onclick="orderViaWhatsAppSingle('${p.id}')">
+          Order via WhatsApp
+        </button>
         <button class="btn btn-ghost" onclick="toggleWishlist('${p.id}');this.textContent=state.wishlist.includes('${p.id}') ? '♥ Saved' : '♡ Save to Wishlist'" style="gap:8px">
           ${inWishlist ? '♥ Saved' : '♡ Save to Wishlist'}
         </button>
@@ -776,10 +779,11 @@ function renderCheckout() {
         <div class="checkout-order-item"><span>Shipping</span><span>${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}</span></div>
         <div class="checkout-total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:8px;margin-bottom:8px">
         <button class="btn btn-ghost" onclick="closeCheckout()">Cancel</button>
         <button class="btn btn-primary" style="flex:1" onclick="placeOrder()">1-Click Buy ✓</button>
       </div>
+      <button class="btn btn-outline btn-full" onclick="orderViaWhatsApp()">Order via WhatsApp</button>
     `;
   } else if(state.checkoutStep === 2) {
     stepContent = `
@@ -798,6 +802,47 @@ function renderCheckout() {
     <p class="checkout-sub">${state.checkoutStep === 1 ? 'Review your order and click buy.' : 'All done!'}</p>
     ${stepContent}
   `;
+}
+
+function orderViaWhatsApp() {
+  if(state.cart.length === 0) return;
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(pr => pr.id === c.id);
+    return s + (p ? p.price * c.qty : 0);
+  }, 0);
+  const shipping = subtotal > 100 ? 0 : 9.99;
+  const total = subtotal + shipping;
+
+  let msg = "Hello Boss Up Trades! I would like to order:\n\n";
+  state.cart.forEach(c => {
+    const p = state.products.find(pr => pr.id === c.id);
+    if(p) msg += `- ${p.name} (x${c.qty}) = $${(p.price*c.qty).toFixed(2)}\n`;
+  });
+  msg += `\nSubtotal: $${subtotal.toFixed(2)}`;
+  msg += `\nShipping: ${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}`;
+  msg += `\nTotal: $${total.toFixed(2)}`;
+
+  const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(msg)}`;
+  window.open(whatsappUrl, '_blank');
+}
+
+function orderViaWhatsAppSingle(productId) {
+  const p = state.products.find(pr => pr.id === productId);
+  if(!p) return;
+  
+  const qty = state.modalQty;
+  const subtotal = p.price * qty;
+  const shipping = subtotal > 100 ? 0 : 9.99;
+  const total = subtotal + shipping;
+  
+  let msg = "Hello Boss Up Trades! I would like to order:\n\n";
+  msg += `- ${p.name} (x${qty}) = $${subtotal.toFixed(2)}\n`;
+  msg += `\nSubtotal: $${subtotal.toFixed(2)}`;
+  msg += `\nShipping: ${shipping === 0 ? 'Free' : '$' + shipping.toFixed(2)}`;
+  msg += `\nTotal: $${total.toFixed(2)}`;
+
+  const whatsappUrl = `https://wa.me/1234567890?text=${encodeURIComponent(msg)}`;
+  window.open(whatsappUrl, '_blank');
 }
 
 function placeOrder() {

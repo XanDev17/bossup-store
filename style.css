@@ -7,19 +7,19 @@
 
 /* ============ CSS VARIABLES ============ */
 :root {
-  --bg: #fffdf8;
+  --bg: #FFFDF8;
   --bg-2: #ffffff;
-  --bg-3: #f2f8fa;
+  --bg-3: rgba(152, 238, 254, 0.1);
   --bg-4: #f2f2f2;
-  --border: rgba(2, 26, 48, 0.14);
+  --border: rgba(2, 26, 48, 0.12);
   --border-hover: rgba(2, 26, 48, 0.25);
-  --text-primary: #062a42;
-  --text-secondary: #466879;
-  --text-muted: #718592;
-  --accent: #021a30;
-  --accent-hover: #032543;
-  --accent-light: #98eefe;
-  --accent-2: #087f98;
+  --text-primary: #021A30;
+  --text-secondary: #0a3556;
+  --text-muted: #4a687d;
+  --accent: #087F98;
+  --accent-hover: #06697d;
+  --accent-light: #98EEFE;
+  --accent-2: #021A30;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
