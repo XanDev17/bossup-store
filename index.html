@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BossUp – Premium gadget accessories store. Shop wireless earbuds, chargers, phone cases, cables, and more." />
+  <title>BossUp — Premium Gadget Accessories</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=6" />
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<!-- NAVBAR -->
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="showPage('home')">
+      <span class="logo-mark">B</span>
+      <span class="logo-text">BossUp</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#" onclick="showPage('home')" class="nav-link active" data-page="home">Home</a>
+      <a href="#" onclick="showPage('shop')" class="nav-link" data-page="shop">Shop</a>
+      <a href="#" onclick="showPage('admin')" class="nav-link" data-page="admin">Admin</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="search-wrap">
+        <input type="text" id="globalSearch" class="nav-search" placeholder="Search products..." oninput="handleSearch(this.value)" />
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+      <button class="icon-btn" id="wishlistBtn" onclick="showPage('wishlist')" title="Wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="badge" id="wishlistBadge">0</span>
+      </button>
+      <button class="icon-btn cart-btn" id="cartBtn" onclick="openCart()" title="Cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="badge" id="cartBadge">0</span>
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<aside class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h2>Your Cart</h2>
+    <button class="close-btn" onclick="closeCart()">&#10005;</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter">
+    <div class="cart-summary">
+      <div class="summary-row"><span>Subtotal</span><span id="cartSubtotal">$0.00</span></div>
+      <div class="summary-row"><span>Shipping</span><span id="cartShipping">Free</span></div>
+      <div class="summary-row total-row"><span>Total</span><span id="cartTotal">$0.00</span></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="openCheckout()">Checkout &rarr;</button>
+    <button class="btn btn-ghost btn-full" onclick="closeCart()">Continue Shopping</button>
+  </div>
+</aside>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productOverlay" onclick="closeProductModal()"></div>
+<div class="product-modal" id="productModal">
+  <button class="modal-close" onclick="closeProductModal()">&#10005;</button>
+  <div class="modal-content" id="modalContent"></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutOverlay" onclick="closeCheckout()"></div>
+<div class="checkout-modal" id="checkoutModal">
+  <button class="modal-close" onclick="closeCheckout()">&#10005;</button>
+  <div id="checkoutContent"></div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- HOME PAGE -->
+  <section id="homePage" class="page active">
+    <div class="hero">
+      <img src="hero_banner.jpg" alt="BossUp gadget accessories collection" class="hero-img" />
+      <div class="hero-overlay">
+        <div class="hero-content">
+          <p class="hero-eyebrow">New Collection 2026</p>
+          <h1 class="hero-title">Elevate Your<br /><span class="gradient-text">Tech Experience</span></h1>
+          <p class="hero-sub">Premium gadget accessories crafted for performance and style.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" onclick="showPage('shop')">Shop Now</button>
+            <button class="btn btn-outline btn-lg" onclick="document.getElementById('featured').scrollIntoView({behavior:'smooth'})">Explore</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat"><strong>50K+</strong><span>Happy Customers</span></div>
+      <div class="stat"><strong>500+</strong><span>Products</span></div>
+      <div class="stat"><strong>4.9&#9733;</strong><span>Avg Rating</span></div>
+      <div class="stat"><strong>Fast</strong><span>Free Shipping</span></div>
+    </div>
+
+    <!-- NEW ARRIVALS BANNER CAROUSEL -->
+    <section class="section banner-carousel-section" id="bannerCarousel">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">New Arrivals</h2>
+            <p class="section-sub">Check out what just dropped</p>
+          </div>
+        </div>
+        <div class="banner-carousel">
+          <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide active">
+              <img src="banner_earbuds.jpg" alt="New Arrival – Premium Wireless Earbuds" />
+            </div>
+            <div class="carousel-slide">
+              <img src="banner_cases.jpg" alt="New Collection – Phone Cases" />
+            </div>
+            <div class="carousel-slide">
+              <img src="banner_charging.jpg" alt="Just Dropped – Fast Charging Accessories" />
+            </div>
+          </div>
+          <button class="carousel-arrow carousel-prev" onclick="carouselPrev()" aria-label="Previous banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button class="carousel-arrow carousel-next" onclick="carouselNext()" aria-label="Next banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+          <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="categories">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Shop by Category</h2>
+          <p class="section-sub">Everything you need for your devices</p>
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="featured">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Featured Products</h2>
+          <a href="#" class="view-all" onclick="showPage('shop')">View All &rarr;</a>
+        </div>
+        <div class="products-grid" id="featuredGrid"></div>
+      </div>
+    </section>
+
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Best Sellers</h2>
+          <a href="#" class="view-all" onclick="showPage('shop')">View All &rarr;</a>
+        </div>
+        <div class="products-grid" id="bestSellerGrid"></div>
+      </div>
+    </section>
+
+    <section class="promo-banner">
+      <div class="container">
+        <div class="promo-inner">
+          <div class="promo-text">
+            <h3>Free Shipping on Orders Over $50</h3>
+            <p>Plus free returns within 30 days &mdash; no questions asked.</p>
+          </div>
+          <button class="btn btn-white" onclick="showPage('shop')">Shop Now</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section newsletter-section">
+      <div class="container">
+        <div class="newsletter-box">
+          <h3>Stay in the Loop</h3>
+          <p>Get the latest deals and product launches straight to your inbox.</p>
+          <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+            <input type="email" id="newsletterEmail" placeholder="Enter your email" required />
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- SHOP PAGE -->
+  <section id="shopPage" class="page">
+    <div class="shop-header">
+      <div class="container">
+        <h1 id="shopTitle">All Products</h1>
+        <p id="shopSubtitle">Explore our complete collection of premium accessories</p>
+      </div>
+    </div>
+    <div class="container shop-layout">
+      <aside class="filter-sidebar">
+        <div class="filter-group">
+          <h4>Category</h4>
+          <div id="filterCategories" class="filter-list"></div>
+        </div>
+        <div class="filter-group">
+          <h4>Price Range</h4>
+          <div class="price-range">
+            <input type="range" id="priceRange" min="0" max="300" value="300" oninput="filterByPrice(this.value)" />
+            <div class="price-labels"><span>$0</span><span id="priceLabel">$300</span></div>
+          </div>
+        </div>
+        <div class="filter-group">
+          <h4>Rating</h4>
+          <div class="rating-filters">
+            <label class="filter-check"><input type="checkbox" value="4" onchange="applyFilters()" /> 4&#9733; &amp; above</label>
+            <label class="filter-check"><input type="checkbox" value="3" onchange="applyFilters()" /> 3&#9733; &amp; above</label>
+          </div>
+        </div>
+        <div class="filter-group">
+          <h4>Sort By</h4>
+          <select class="filter-select" id="sortSelect" onchange="applyFilters()">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+        <button class="btn btn-ghost btn-full" onclick="clearFilters()" style="margin-top:8px">Clear Filters</button>
+      </aside>
+      <div class="shop-main">
+        <div class="shop-toolbar">
+          <span id="productCount" class="product-count"></span>
+          <div class="view-toggle">
+            <button id="gridViewBtn" class="view-btn active" onclick="setView('grid')" title="Grid view">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z"/></svg>
+            </button>
+            <button id="listViewBtn" class="view-btn" onclick="setView('list')" title="List view">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16"><path d="M3 5h18v2H3zm0 6h18v2H3zm0 6h18v2H3z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="products-grid" id="shopGrid"></div>
+        <div id="noResults" class="no-results hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <p>No products match your filters.</p>
+          <button class="btn btn-ghost" onclick="clearFilters()">Clear Filters</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WISHLIST PAGE -->
+  <section id="wishlistPage" class="page">
+    <div class="shop-header">
+      <div class="container">
+        <h1>My Wishlist</h1>
+        <p>Products you've saved for later</p>
+      </div>
+    </div>
+    <div class="container" style="padding-top:40px;padding-bottom:60px">
+      <div class="products-grid" id="wishlistGrid"></div>
+      <div id="emptyWishlist" class="empty-state hidden">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <h3>Your wishlist is empty</h3>
+        <p>Save products you love by clicking the heart icon.</p>
+        <button class="btn btn-primary" onclick="showPage('shop')">Browse Products</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN PAGE -->
+  <section id="adminPage" class="page">
+    <div class="shop-header">
+      <div class="container">
+        <h1>Admin Dashboard</h1>
+        <p>Manage your store products and inventory</p>
+      </div>
+    </div>
+    <div class="container" style="padding-bottom:60px">
+      <div class="admin-stats" id="adminStats"></div>
+
+      <div class="admin-card">
+        <h3 id="formTitle">Add New Product</h3>
+        <form id="productForm" class="product-form" onsubmit="saveProduct(event)">
+          <input type="hidden" id="editProductId" value="" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="pName">Product Name *</label>
+              <input type="text" id="pName" placeholder="e.g., ProBuds X3 Earbuds" required />
+            </div>
+            <div class="form-group">
+              <label for="pCategory">Category *</label>
+              <select id="pCategory" required>
+                <option value="">Select category</option>
+                <option value="Audio">Audio</option>
+                <option value="Charging">Charging</option>
+                <option value="Cases">Cases</option>
+                <option value="Cables">Cables</option>
+                <option value="Wearables">Wearables</option>
+                <option value="Storage">Storage</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pPrice">Price ($) *</label>
+              <input type="number" id="pPrice" step="0.01" min="0" placeholder="29.99" required />
+            </div>
+            <div class="form-group">
+              <label for="pOriginalPrice">Original Price ($)</label>
+              <input type="number" id="pOriginalPrice" step="0.01" min="0" placeholder="49.99" />
+            </div>
+            <div class="form-group">
+              <label for="pStock">Stock Quantity *</label>
+              <input type="number" id="pStock" min="0" placeholder="100" required />
+            </div>
+            <div class="form-group">
+              <label for="pRating">Rating (1-5)</label>
+              <input type="number" id="pRating" step="0.1" min="1" max="5" placeholder="4.5" />
+            </div>
+            <div class="form-group">
+              <label for="pBadge">Badge</label>
+              <select id="pBadge">
+                <option value="">None</option>
+                <option value="New">New</option>
+                <option value="Hot">Hot</option>
+                <option value="Sale">Sale</option>
+                <option value="Best Seller">Best Seller</option>
+                <option value="Limited">Limited</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pColor">Accent Color</label>
+              <input type="color" id="pColor" value="#6366f1" />
+            </div>
+            <div class="form-group form-group-full">
+              <label for="pDescription">Description *</label>
+              <textarea id="pDescription" rows="3" placeholder="Describe your product..." required></textarea>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="pFeatures">Key Features (one per line)</label>
+              <textarea id="pFeatures" rows="4" placeholder="Active Noise Cancellation&#10;30hr battery life&#10;IPX5 water resistant"></textarea>
+            </div>
+            <div class="form-group form-group-full">
+              <label for="pImage">Image URL (optional)</label>
+              <input type="text" id="pImage" placeholder="https://example.com/product.jpg or leave blank for auto icon" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="saveBtn">Add Product</button>
+            <button type="button" class="btn btn-ghost" onclick="resetForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-table-header">
+          <h3>All Products (<span id="adminProductCount">0</span>)</h3>
+          <div class="search-wrap">
+            <input type="text" class="nav-search" placeholder="Search..." id="adminSearch" oninput="filterAdminProducts(this.value)" />
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table" id="adminTable">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo" style="margin-bottom:16px">
+          <span class="logo-mark">B</span>
+          <span class="logo-text">BossUp</span>
+        </div>
+        <p>Premium gadget accessories for modern tech enthusiasts. Quality you can feel, performance you can trust.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" aria-label="Twitter">&#120143;</a>
+          <a href="#" class="social-btn" aria-label="Instagram">&#9723;</a>
+          <a href="#" class="social-btn" aria-label="YouTube">&#9654;</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a href="#" onclick="showPage('shop','Audio')">Audio</a>
+        <a href="#" onclick="showPage('shop','Charging')">Charging</a>
+        <a href="#" onclick="showPage('shop','Cases')">Cases</a>
+        <a href="#" onclick="showPage('shop','Cables')">Cables</a>
+        <a href="#" onclick="showPage('shop','Wearables')">Wearables</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#">Contact Us</a>
+        <a href="#">FAQ</a>
+        <a href="#">Shipping Info</a>
+        <a href="#">Returns</a>
+        <a href="#">Track Order</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a href="#">About Us</a>
+        <a href="#">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 BossUp Store. All rights reserved.</p>
+      <div class="payment-icons">
+        <span>VISA</span><span>MC</span><span>AMEX</span><span>PayPal</span><span>Apple Pay</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
