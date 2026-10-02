@@ -143,7 +143,8 @@ let state = {
   adminFilter: '',
   modalProductId: null,
   modalQty: 1,
-  checkoutStep: 1
+  checkoutStep: 1,
+  orders: []
 };
 
 // ======================== PERSISTENCE ========================
@@ -152,6 +153,7 @@ function saveState() {
     localStorage.setItem('nexus_products', JSON.stringify(state.products));
     localStorage.setItem('nexus_cart', JSON.stringify(state.cart));
     localStorage.setItem('nexus_wishlist', JSON.stringify(state.wishlist));
+    localStorage.setItem('bossup_orders', JSON.stringify(state.orders));
   } catch(e) {}
 }
 
@@ -160,14 +162,35 @@ function loadState() {
     const prods = localStorage.getItem('nexus_products');
     const cart = localStorage.getItem('nexus_cart');
     const wishlist = localStorage.getItem('nexus_wishlist');
+    const orders = localStorage.getItem('bossup_orders');
     state.products = prods ? JSON.parse(prods) : [...SEED_PRODUCTS];
     state.cart = cart ? JSON.parse(cart) : [];
     state.wishlist = wishlist ? JSON.parse(wishlist) : [];
+    state.orders = orders ? JSON.parse(orders) : generateFakeOrders();
   } catch(e) {
     state.products = [...SEED_PRODUCTS];
     state.cart = [];
     state.wishlist = [];
+    state.orders = generateFakeOrders();
   }
+}
+
+function generateFakeOrders() {
+  const fakeOrders = [];
+  const now = new Date();
+  for(let i = 6; i >= 0; i--) {
+    const ordersToday = Math.floor(Math.random() * 5) + 2; // 2 to 6 orders
+    for(let j=0; j<ordersToday; j++) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      fakeOrders.push({
+        id: Math.random().toString(36).substring(7),
+        total: Math.floor(Math.random() * 200) + 49.99,
+        date: d.toISOString()
+      });
+    }
+  }
+  return fakeOrders;
 }
 
 // ======================== TOAST ========================
@@ -814,7 +837,19 @@ function nextCheckoutStep() {
 }
 
 function placeOrder() {
-  // Simulate order placement
+  const subtotal = state.cart.reduce((s,c) => {
+    const p = state.products.find(pr => pr.id === c.id);
+    return s + (p ? p.price * c.qty : 0);
+  }, 0);
+  const shipping = subtotal > 100 ? 0 : 9.99;
+  const total = subtotal + shipping;
+
+  state.orders.push({
+    id: Math.random().toString(36).substring(7),
+    total: total,
+    date: new Date().toISOString()
+  });
+
   state.cart = [];
   saveState();
   updateCartBadge();
@@ -823,24 +858,76 @@ function placeOrder() {
 }
 
 // ======================== ADMIN PANEL ========================
+let salesChartInstance = null;
+
 function renderAdminPage() {
   // Stats
   const totalProducts = state.products.length;
-  const totalRevenue = state.cart.reduce((s,c) => {
-    const p = state.products.find(pr => pr.id === c.id);
-    return s + (p ? p.price * c.qty : 0);
-  }, 0);
+  const totalRevenue = state.orders.reduce((s,o) => s + o.total, 0);
   const totalStock = state.products.reduce((s, p) => s + p.stock, 0);
   const outOfStock = state.products.filter(p => p.stock === 0).length;
 
   document.getElementById('adminStats').innerHTML = `
     <div class="admin-stat-card"><div class="stat-label">Total Products</div><div class="stat-val accent">${totalProducts}</div></div>
-    <div class="admin-stat-card"><div class="stat-label">Cart Value</div><div class="stat-val success">$${totalRevenue.toFixed(2)}</div></div>
-    <div class="admin-stat-card"><div class="stat-label">Total Stock</div><div class="stat-val">${totalStock.toLocaleString()}</div></div>
+    <div class="admin-stat-card"><div class="stat-label">Total Revenue</div><div class="stat-val success">$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div></div>
+    <div class="admin-stat-card"><div class="stat-label">Total Orders</div><div class="stat-val">${state.orders.length}</div></div>
     <div class="admin-stat-card"><div class="stat-label">Out of Stock</div><div class="stat-val warning">${outOfStock}</div></div>
   `;
 
+  renderAdminChart();
   renderAdminTable(state.products);
+}
+
+function renderAdminChart() {
+  const ctx = document.getElementById('salesChart');
+  if(!ctx) return;
+
+  // Group orders by date (last 7 days)
+  const last7Days = [];
+  const salesData = [];
+  const now = new Date();
+  
+  for(let i=6; i>=0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    last7Days.push(d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }));
+    
+    const daySales = state.orders
+      .filter(o => o.date.startsWith(dateStr))
+      .reduce((s, o) => s + o.total, 0);
+    salesData.push(daySales);
+  }
+
+  if (salesChartInstance) {
+    salesChartInstance.destroy();
+  }
+
+  salesChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: last7Days,
+      datasets: [{
+        label: 'Revenue ($)',
+        data: salesData,
+        borderColor: '#087f98',
+        backgroundColor: 'rgba(8,127,152,0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
 }
 
 function renderAdminTable(products) {

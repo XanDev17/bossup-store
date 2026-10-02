@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
@@ -286,6 +287,10 @@
     </div>
     <div class="container" style="padding-bottom:60px">
       <div class="admin-stats" id="adminStats"></div>
+      <div class="admin-card">
+        <h3>Sales Overview</h3>
+        <canvas id="salesChart" height="80"></canvas>
+      </div>
 
       <div class="admin-card">
         <h3 id="formTitle">Add New Product</h3>
