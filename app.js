@@ -183,9 +183,21 @@ function generateFakeOrders() {
     for(let j=0; j<ordersToday; j++) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
+      
+      const numItems = Math.floor(Math.random() * 3) + 1;
+      const items = [];
+      let total = 0;
+      for(let k=0; k<numItems; k++) {
+        const prod = SEED_PRODUCTS[Math.floor(Math.random() * SEED_PRODUCTS.length)];
+        const qty = Math.floor(Math.random() * 2) + 1;
+        items.push({ id: prod.id, qty, price: prod.price });
+        total += prod.price * qty;
+      }
+      
       fakeOrders.push({
         id: Math.random().toString(36).substring(7),
-        total: Math.floor(Math.random() * 200) + 49.99,
+        total: total,
+        items: items,
         date: d.toISOString()
       });
     }
@@ -847,6 +859,7 @@ function placeOrder() {
   state.orders.push({
     id: Math.random().toString(36).substring(7),
     total: total,
+    items: JSON.parse(JSON.stringify(state.cart)), // clone cart items
     date: new Date().toISOString()
   });
 
@@ -862,16 +875,36 @@ let salesChartInstance = null;
 
 function renderAdminPage() {
   // Stats
-  const totalProducts = state.products.length;
+  const todayStr = new Date().toISOString().split('T')[0];
+  const salesToday = state.orders
+    .filter(o => o.date.startsWith(todayStr))
+    .reduce((s,o) => s + o.total, 0);
+
   const totalRevenue = state.orders.reduce((s,o) => s + o.total, 0);
-  const totalStock = state.products.reduce((s, p) => s + p.stock, 0);
-  const outOfStock = state.products.filter(p => p.stock === 0).length;
+  
+  // Find top product by revenue
+  const productRevenue = {};
+  state.orders.forEach(o => {
+    (o.items || []).forEach(item => {
+      productRevenue[item.id] = (productRevenue[item.id] || 0) + (item.price * item.qty);
+    });
+  });
+  
+  let topProductId = null;
+  let topProductRevenue = 0;
+  for(const [id, rev] of Object.entries(productRevenue)) {
+    if(rev > topProductRevenue) {
+      topProductRevenue = rev;
+      topProductId = id;
+    }
+  }
+  const topProduct = state.products.find(p => p.id === topProductId);
+  const topProductName = topProduct ? topProduct.name : 'N/A';
 
   document.getElementById('adminStats').innerHTML = `
-    <div class="admin-stat-card"><div class="stat-label">Total Products</div><div class="stat-val accent">${totalProducts}</div></div>
+    <div class="admin-stat-card"><div class="stat-label">Sales Today</div><div class="stat-val accent">$${salesToday.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div></div>
     <div class="admin-stat-card"><div class="stat-label">Total Revenue</div><div class="stat-val success">$${totalRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div></div>
-    <div class="admin-stat-card"><div class="stat-label">Total Orders</div><div class="stat-val">${state.orders.length}</div></div>
-    <div class="admin-stat-card"><div class="stat-label">Out of Stock</div><div class="stat-val warning">${outOfStock}</div></div>
+    <div class="admin-stat-card" style="grid-column: span 2"><div class="stat-label">Top Selling Product</div><div class="stat-val" style="font-size:1.4rem;line-height:1.2;margin-top:8px">${topProductName}</div></div>
   `;
 
   renderAdminChart();
